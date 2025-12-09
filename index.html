@@ -26,89 +26,46 @@
       }
     </script>
     <style>
-      /* Print Styles - "Nuclear Option" to ensure white background */
+      /* Print Styles - Standard A4 Landscape */
       @media print {
-        @page { size: landscape; margin: 1cm; }
+        @page { size: landscape; margin: 0.5cm; }
         
-        /* Reset global colors */
-        html, body { 
+        body { 
           background-color: #ffffff !important; 
-          background: #ffffff !important;
-          color: #000000 !important; 
-          -webkit-print-color-adjust: exact; 
-          print-color-adjust: exact;
-        }
-        
-        #root {
-          background-color: #ffffff !important;
           color: #000000 !important;
         }
 
-        /* Hide interactive elements */
+        #root {
+          width: 100%;
+        }
+
         .no-print { display: none !important; }
         
-        /* Force visibility for slides */
+        /* Force block display to override potential Flex centering issues in print */
         .print-force-visible { 
           display: block !important; 
-          page-break-after: always;
-          margin-bottom: 20px;
+          page-break-after: always; /* Ensure each slide is a new page */
+          width: 100% !important;
+          height: 100vh !important;
+          position: relative;
         }
 
-        /* Reset Containers - Kill the dark mode */
-        div, section, article, main, header, footer, aside {
+        /* Container Overrides for Print */
+        div, section {
           background-color: transparent !important;
-          background-image: none !important;
           box-shadow: none !important;
-          color: #000000 !important;
           text-shadow: none !important;
         }
 
-        /* Specifically target the slide wrapper to add a simple border instead of shadow/bg */
-        .slide-container { 
-          border: 2px solid #000 !important;
-          border-radius: 0 !important;
-          background: #ffffff !important;
-          padding: 20px !important;
-          min-height: auto !important;
-          height: auto !important;
-        }
+        /* Specific text visibility fixes */
+        h1, h2, h3, h4, strong { color: #000000 !important; }
+        p, span, li, td { color: #000000 !important; }
         
-        /* Chart container override */
-        .recharts-responsive-container { 
-          height: 350px !important; 
-          width: 100% !important; 
-          page-break-inside: avoid;
-        }
-        
-        /* Typography overrides */
-        h1, h2, h3, h4, h5, h6 { 
-          color: #000000 !important; 
-          font-weight: 800 !important;
-        }
-        
-        p, span, strong, li, td, th, div { 
-          color: #000000 !important; 
-        }
-        
-        /* Helper to make specific text colors readable on white */
-        .text-slate-400, .text-slate-500, .text-slate-300 {
-          color: #444444 !important;
-        }
-        
-        .text-blue-500, .text-blue-400 { color: #0000cc !important; }
-        .text-emerald-400 { color: #006600 !important; }
-        .text-red-400 { color: #cc0000 !important; }
-        .text-amber-400, .text-amber-500 { color: #b37400 !important; }
+        /* Table Borders */
+        table, th, td { border-color: #000000 !important; }
 
-        /* Tables */
-        table { border-collapse: collapse !important; width: 100% !important; }
-        th, td { border: 1px solid #000 !important; }
-        thead { border-bottom: 2px solid #000 !important; }
-        
-        /* Remove gradients */
-        [class*="bg-gradient"] {
-          background: transparent !important;
-        }
+        /* Hide Scrollbars */
+        ::-webkit-scrollbar { display: none; }
       }
 
       /* Custom Scrollbar for web */

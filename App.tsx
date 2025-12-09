@@ -8,6 +8,7 @@ import {
   SlideInsurance, SlideProfessionals, SlideErrorCategories, 
   SlideStrategy, SlideNextSteps, SlideClosing 
 } from './components/Slides';
+import { Loader2 } from 'lucide-react';
 
 const SLIDE_COMPONENTS = [
   SlideCover,
@@ -28,6 +29,7 @@ const SLIDE_COMPONENTS = [
 function App() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
   const totalSlides = SLIDE_COMPONENTS.length;
 
   const nextSlide = useCallback(() => {
@@ -42,32 +44,44 @@ function App() {
     setCurrentSlide(index);
   };
 
-  // Trigger print flow: 
-  // 1. Show all slides (isPrinting = true)
-  // 2. Wait for charts to render
-  // 3. Open print dialog
   const handlePrintClick = () => {
+    if (isPreparing || isPrinting) return;
+    
+    // 1. Ativa modo de impressão (renderiza todos slides, ajusta cores para preto/branco)
     setIsPrinting(true);
+    // 2. Mostra o loading na tela
+    setIsPreparing(true);
   };
 
   useEffect(() => {
-    if (isPrinting) {
-      // Allow time for Recharts to measure DOM and render charts
-      const timer = setTimeout(() => {
-        window.print();
-        // After print dialog closes (or user interacts), reset view.
-        // Note: window.print() is blocking in many browsers, but not all.
-        // Resetting immediately after might be too fast if non-blocking,
-        // but typically execution pauses here.
-        setIsPrinting(false);
-      }, 800);
-      return () => clearTimeout(timer);
+    if (isPrinting && isPreparing) {
+      // Aguarda o React redesenhar os gráficos sem animação e com cores de impressão
+      const renderTimer = setTimeout(() => {
+        
+        // 3. REMOVE o loading da tela ANTES de chamar a impressora
+        setIsPreparing(false);
+        
+        // 4. Pequeno delay para garantir que o DOM atualizou (removeu o loader)
+        setTimeout(() => {
+          window.print();
+          
+          // 5. Após fechar a janela de impressão (ou imediatamente após enviar o comando),
+          // aguarda um pouco e volta ao modo normal
+          setTimeout(() => {
+            setIsPrinting(false);
+          }, 500);
+        }, 100);
+        
+      }, 1500); // 1.5s para garantir que todos os gráficos renderizaram
+      
+      return () => clearTimeout(renderTimer);
     }
-  }, [isPrinting]);
+  }, [isPrinting, isPreparing]);
 
   // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isPrinting) return;
       if (e.key === 'ArrowRight' || e.key === ' ') {
         nextSlide();
       } else if (e.key === 'ArrowLeft') {
@@ -77,24 +91,30 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [nextSlide, prevSlide]);
+  }, [nextSlide, prevSlide, isPrinting]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30 selection:text-blue-200">
       <Header onPrint={handlePrintClick} />
       
-      <main className="pt-20 pb-20 min-h-screen flex items-center print:pt-0 print:pb-0 print:block">
-        {/* Render all slides. 
-            On screen: Only current is block (unless printing), others hidden.
-            On print: All are block (via state + CSS) 
-        */}
+      {isPreparing && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center text-white print:hidden">
+          <Loader2 size={48} className="animate-spin text-blue-500 mb-4" />
+          <h2 className="text-2xl font-bold">Preparando Relatório...</h2>
+          <p className="text-slate-400 mt-2">Ajustando gráficos para alta qualidade no PDF.</p>
+        </div>
+      )}
+
+      <main className="pt-20 pb-20 min-h-screen flex items-center print:pt-0 print:pb-0 print:block print:h-auto">
         {SLIDE_COMPONENTS.map((Component, index) => (
           <div 
             key={index} 
             className={`${index === currentSlide || isPrinting ? 'block' : 'hidden'} print-force-visible w-full`}
           >
-             <SlideWrapper isActive={index === currentSlide || isPrinting}>
-               <Component />
+             <SlideWrapper isActive={index === currentSlide || isPrinting} isPrinting={isPrinting}>
+               {/* Pass isPrinting prop to all slides so they can adjust chart colors */}
+               {/* @ts-ignore - Dynamic component rendering */}
+               <Component isPrinting={isPrinting} />
              </SlideWrapper>
           </div>
         ))}
