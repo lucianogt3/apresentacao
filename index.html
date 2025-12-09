@@ -28,11 +28,13 @@
     <style>
       /* Print Styles - Standard A4 Landscape */
       @media print {
-        @page { size: landscape; margin: 0.5cm; }
+        @page { size: landscape; margin: 0; }
         
         body { 
           background-color: #ffffff !important; 
           color: #000000 !important;
+          margin: 0;
+          padding: 0;
         }
 
         #root {
@@ -48,6 +50,8 @@
           width: 100% !important;
           height: 100vh !important;
           position: relative;
+          padding: 1cm; /* Add inner padding for the page content */
+          box-sizing: border-box;
         }
 
         /* Container Overrides for Print */

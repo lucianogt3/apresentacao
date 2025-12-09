@@ -9,24 +9,34 @@ import {
 } from 'lucide-react';
 import { KPIS, REVENUE_LEAKS, WEEKLY_FLOW_DATA, ERROR_BY_SECTOR, TOP_ERRORS, CONVENIOS, PROFESSIONALS, ERROR_CATEGORIES } from '../constants';
 import { SectionTitle } from './ui/SectionTitle';
-// FIX: Import directly from parent component directory, not ./charts/
 import { CustomTooltip } from './CustomTooltip';
 
 /* 
-  NOTE FOR PRINTING:
-  Colors for axes/grids are set to darker shades (#475569 instead of #94a3b8) 
-  so they are visible on both the dark screen background and the white print background.
+  PROPS INTERFACE
+  All slides accept isPrinting to switch chart colors dynamically
 */
+interface SlideProps {
+  isPrinting?: boolean;
+}
+
+// Helper for Chart Colors
+const getChartColors = (isPrinting: boolean = false) => ({
+  text: isPrinting ? '#000000' : '#f8fafc', // Print: Black, Screen: Very Bright White
+  grid: isPrinting ? '#94a3b8' : '#334155', // Print: Visible Grey, Screen: Subtle Grey
+  // Line colors optimized for printing on white paper
+  lineAud: isPrinting ? '#d97706' : '#eab308', // Print: Darker Amber, Screen: Bright Yellow
+  lineFat: isPrinting ? '#1e40af' : '#3b82f6', // Print: Darker Blue, Screen: Bright Blue
+});
 
 /* --- SLIDE 0: Cover --- */
-export const SlideCover: React.FC = () => (
+export const SlideCover: React.FC<SlideProps> = () => (
   <div className="flex flex-col justify-center h-full gap-6 md:gap-8 my-auto">
     <div>
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-4 md:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400 leading-tight" style={{ color: 'inherit' /* Fallback for print */ }}>
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-4 md:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400 leading-tight print:text-black print:bg-none" style={{ color: 'inherit' }}>
         Relatório Executivo<br />
-        <span className="text-blue-500">Auditoria Hospitalar</span>
+        <span className="text-blue-500 print:text-black">Auditoria Hospitalar</span>
       </h1>
-      <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-light max-w-3xl leading-relaxed">
+      <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-light max-w-3xl leading-relaxed print:text-black">
         Visão estratégica da produção, riscos de perda de receita e oportunidades de melhoria assistencial e financeira no Hospital Unique.
       </p>
     </div>
@@ -42,11 +52,11 @@ export const SlideCover: React.FC = () => (
       </div>
     </div>
 
-    <div className="mt-8 md:mt-12 p-4 md:p-6 rounded-2xl bg-slate-800/50 border border-slate-700/50 print:border-black">
-      <ul className="space-y-3 md:space-y-4 text-base md:text-lg text-slate-300">
+    <div className="mt-8 md:mt-12 p-4 md:p-6 rounded-2xl bg-slate-800/50 border border-slate-700/50 print:border-black print:bg-white">
+      <ul className="space-y-3 md:space-y-4 text-base md:text-lg text-slate-300 print:text-black">
         <li className="flex items-start gap-3">
           <div className="mt-1.5 w-2 h-2 rounded-full bg-blue-500 shrink-0 print:bg-black"></div>
-          <span>Baseado em <strong className="text-emerald-400">457 contas auditadas</strong> e <strong className="text-emerald-400">1.529 erros</strong>.</span>
+          <span>Baseado em <strong className="text-emerald-400 print:text-black font-bold">457 contas auditadas</strong> e <strong className="text-emerald-400 print:text-black font-bold">1.529 erros</strong>.</span>
         </li>
         <li className="flex items-start gap-3">
           <div className="mt-1.5 w-2 h-2 rounded-full bg-blue-500 shrink-0 print:bg-black"></div>
@@ -58,7 +68,7 @@ export const SlideCover: React.FC = () => (
 );
 
 /* --- SLIDE 1: General KPIs --- */
-export const SlideKPIs: React.FC = () => {
+export const SlideKPIs: React.FC<SlideProps> = () => {
   const icons: any = { FileText, AlertTriangle, Clock, ArrowRight, Bed };
   
   return (
@@ -72,13 +82,13 @@ export const SlideKPIs: React.FC = () => {
         {KPIS.map((kpi, idx) => {
           const Icon = icons[kpi.icon];
           return (
-            <div key={idx} className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 hover:border-blue-500/50 transition-all shadow-lg print:border-black print:shadow-none">
-              <div className="flex items-center gap-3 text-slate-400 mb-2 md:mb-3 font-semibold uppercase text-xs md:text-sm tracking-wider">
+            <div key={idx} className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 hover:border-blue-500/50 transition-all shadow-lg print:border-black print:shadow-none print:bg-white">
+              <div className="flex items-center gap-3 text-slate-400 mb-2 md:mb-3 font-semibold uppercase text-xs md:text-sm tracking-wider print:text-black">
                 <Icon size={18} className="text-blue-500 print:text-black" />
                 {kpi.label}
               </div>
               <div className="text-3xl md:text-5xl font-bold text-slate-100 mb-2 md:mb-3 print:text-black">{kpi.value}</div>
-              <div className="text-xs md:text-sm text-slate-400 font-light leading-snug">{kpi.sub}</div>
+              <div className="text-xs md:text-sm text-slate-400 font-light leading-snug print:text-black">{kpi.sub}</div>
             </div>
           );
         })}
@@ -95,7 +105,7 @@ export const SlideKPIs: React.FC = () => {
 };
 
 /* --- SLIDE 2: Revenue Leaks --- */
-export const SlideRevenueLeaks: React.FC = () => {
+export const SlideRevenueLeaks: React.FC<SlideProps> = () => {
   const icons: any = { Box, Pill, Utensils, Aperture };
 
   return (
@@ -109,7 +119,7 @@ export const SlideRevenueLeaks: React.FC = () => {
         {REVENUE_LEAKS.map((item, idx) => {
           const Icon = icons[item.icon];
           return (
-            <div key={idx} className="group bg-gradient-to-br from-slate-800 to-slate-900 p-4 md:p-6 rounded-2xl border border-slate-700 relative overflow-hidden print:border-black print:bg-none">
+            <div key={idx} className="group bg-gradient-to-br from-slate-800 to-slate-900 p-4 md:p-6 rounded-2xl border border-slate-700 relative overflow-hidden print:border-black print:bg-none print:bg-white">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500 print:bg-black"></div>
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-slate-950 rounded-lg text-slate-300 group-hover:text-red-400 transition-colors print:text-black print:bg-transparent print:border print:border-black">
@@ -118,26 +128,26 @@ export const SlideRevenueLeaks: React.FC = () => {
                 <span className="text-3xl md:text-4xl font-bold text-slate-100 print:text-black">{item.value}</span>
               </div>
               <h3 className="text-lg md:text-xl font-bold text-slate-200 mb-2 print:text-black">{item.label}</h3>
-              <p className="text-xs md:text-sm text-slate-400">{item.sub}</p>
+              <p className="text-xs md:text-sm text-slate-400 print:text-black">{item.sub}</p>
             </div>
           );
         })}
       </div>
 
       <div className="mt-6 md:mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        <div className="bg-slate-800/30 p-4 md:p-6 rounded-xl border border-slate-700 print:border-black">
-           <h4 className="text-base md:text-lg font-bold text-emerald-400 mb-3 flex items-center gap-2">
+        <div className="bg-slate-800/30 p-4 md:p-6 rounded-xl border border-slate-700 print:border-black print:bg-white">
+           <h4 className="text-base md:text-lg font-bold text-emerald-400 mb-3 flex items-center gap-2 print:text-black">
              <TrendingUp size={20} /> Impacto Estratégico
            </h4>
-           <p className="text-sm md:text-base text-slate-300">
+           <p className="text-sm md:text-base text-slate-300 print:text-black">
              Materiais e medicações não cobrados são "ralos silenciosos". Só aparecem quando a auditoria confronta prontuário, enfermagem e conta. A correção aqui é lucro líquido direto.
            </p>
         </div>
-        <div className="bg-slate-800/30 p-4 md:p-6 rounded-xl border border-slate-700 print:border-black">
-           <h4 className="text-base md:text-lg font-bold text-blue-400 mb-3 flex items-center gap-2">
+        <div className="bg-slate-800/30 p-4 md:p-6 rounded-xl border border-slate-700 print:border-black print:bg-white">
+           <h4 className="text-base md:text-lg font-bold text-blue-400 mb-3 flex items-center gap-2 print:text-black">
              <ShieldAlert size={20} /> Ação Recomendada
            </h4>
-           <p className="text-sm md:text-base text-slate-300">
+           <p className="text-sm md:text-base text-slate-300 print:text-black">
              Revisão dos kits cirúrgicos e protocolos de dispensação de farmácia para garantir que o físico (entregue) bata com o sistêmico (cobrado) antes da auditoria.
            </p>
         </div>
@@ -147,115 +157,153 @@ export const SlideRevenueLeaks: React.FC = () => {
 };
 
 /* --- SLIDE 3: Weekly Flow Chart --- */
-export const SlideWeeklyFlow: React.FC = () => (
-  <>
-    <SectionTitle 
-      title="Fluxo de Contas por Dia" 
-      subtitle="Volume de contas entregues à auditoria vs. enviadas ao faturamento."
-    />
-    <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[450px] print:border-black print:h-[350px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={WEEKLY_FLOW_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-          {/* Darker stroke for print visibility */}
-          <CartesianGrid strokeDasharray="3 3" stroke="#475569" vertical={false} />
-          <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 12, fill: '#000'}} axisLine={false} tickLine={false} />
-          <YAxis stroke="#64748b" tick={{fontSize: 12, fill: '#000'}} axisLine={false} tickLine={false} />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend wrapperStyle={{ paddingTop: '20px' }} />
-          <Bar dataKey="Auditoria" fill="#eab308" radius={[4, 4, 0, 0]} name="Entrada (Auditoria)" isAnimationActive={false} />
-          <Bar dataKey="Faturamento" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Saída (Faturamento)" isAnimationActive={false} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-    <div className="mt-4 text-center text-slate-400 text-xs md:text-sm">
-      Picos em Quarta e Sexta exigem escala reforçada para evitar gargalos.
-    </div>
-  </>
-);
+export const SlideWeeklyFlow: React.FC<SlideProps> = ({ isPrinting = false }) => {
+  const colors = getChartColors(isPrinting);
 
-/* --- SLIDE 4: Audit vs Billing Lines --- */
-export const SlideAuditVsBilling: React.FC = () => (
-  <>
-    <SectionTitle 
-      title="Equilíbrio: Entrada vs Saída" 
-      subtitle="Análise comparativa das curvas de trabalho."
-    />
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 h-auto md:h-[400px]">
-      <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black">
-        <h3 className="text-base md:text-lg font-bold text-slate-200 mb-4 text-center print:text-black">Entregues para Auditoria</h3>
-        <div className="flex-1">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={WEEKLY_FLOW_DATA}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#475569" vertical={false} />
-              <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 12, fill: '#000'}} />
-              <YAxis stroke="#64748b" tick={{fontSize: 12, fill: '#000'}} />
-              <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="Auditoria" stroke="#eab308" strokeWidth={3} dot={{r: 4, fill: "#eab308"}} activeDot={{r: 6}} isAnimationActive={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-      <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black">
-        <h3 className="text-base md:text-lg font-bold text-slate-200 mb-4 text-center print:text-black">Enviadas ao Faturamento</h3>
-        <div className="flex-1">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={WEEKLY_FLOW_DATA}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#475569" vertical={false} />
-              <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 12, fill: '#000'}} />
-              <YAxis stroke="#64748b" tick={{fontSize: 12, fill: '#000'}} />
-              <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="Faturamento" stroke="#3b82f6" strokeWidth={3} dot={{r: 4, fill: "#3b82f6"}} activeDot={{r: 6}} isAnimationActive={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  </>
-);
-
-/* --- SLIDE 5: Errors by Sector --- */
-export const SlideErrorDistribution: React.FC = () => (
-  <>
-    <SectionTitle 
-      title="Origem dos Erros" 
-      subtitle="Distribuição dos apontamentos por setor responsável."
-    />
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-center h-full">
-      <div className="md:col-span-2 bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[400px] print:border-black">
+  return (
+    <>
+      <SectionTitle 
+        title="Fluxo de Contas por Dia" 
+        subtitle="Volume de contas entregues à auditoria vs. enviadas ao faturamento."
+      />
+      <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[450px] print:border-black print:h-[350px] print:bg-white">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={ERROR_BY_SECTOR} layout="vertical" margin={{left: 0}}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#475569" horizontal={false} />
-            <XAxis type="number" stroke="#64748b" tick={{fill: '#000'}} />
-            <YAxis dataKey="name" type="category" stroke="#64748b" width={90} tick={{fontSize: 12, fontWeight: 600, fill: '#000'}} />
-            <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={40} isAnimationActive={false}>
-              {ERROR_BY_SECTOR.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill as string} />
-              ))}
-            </Bar>
+          <BarChart data={WEEKLY_FLOW_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
+            <XAxis 
+              dataKey="name" 
+              stroke={colors.text} 
+              tick={{fontSize: 12, fill: colors.text, fontWeight: isPrinting ? 600 : 400}} 
+              axisLine={{stroke: colors.text}} 
+              tickLine={false} 
+            />
+            <YAxis 
+              stroke={colors.text} 
+              tick={{fontSize: 12, fill: colors.text, fontWeight: isPrinting ? 600 : 400}} 
+              axisLine={{stroke: colors.text}} 
+              tickLine={false} 
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{fill: isPrinting ? '#f0f0f0' : 'rgba(255,255,255,0.05)'}} />
+            <Legend wrapperStyle={{ paddingTop: '20px', color: colors.text }} />
+            <Bar dataKey="Auditoria" fill={colors.lineAud} radius={[4, 4, 0, 0]} name="Entrada (Auditoria)" isAnimationActive={!isPrinting} />
+            <Bar dataKey="Faturamento" fill={colors.lineFat} radius={[4, 4, 0, 0]} name="Saída (Faturamento)" isAnimationActive={!isPrinting} />
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="space-y-3 md:space-y-4">
-        <div className="bg-slate-800 p-3 md:p-4 rounded-lg border-l-4 border-blue-500 print:bg-white print:border print:border-black">
-          <strong className="block text-blue-400 text-base md:text-lg print:text-black">Faturamento (1093)</strong>
-          <span className="text-slate-400 text-xs md:text-sm print:text-black">Maior volume. Necessidade de protocolos claros de conferência.</span>
+      <div className="mt-4 text-center text-slate-400 text-xs md:text-sm print:text-black">
+        Picos em Quarta e Sexta exigem escala reforçada para evitar gargalos.
+      </div>
+    </>
+  );
+};
+
+/* --- SLIDE 4: Audit vs Billing Lines --- */
+export const SlideAuditVsBilling: React.FC<SlideProps> = ({ isPrinting = false }) => {
+  const colors = getChartColors(isPrinting);
+  
+  return (
+    <>
+      <SectionTitle 
+        title="Equilíbrio: Entrada vs Saída" 
+        subtitle="Análise comparativa das curvas de trabalho."
+      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 h-auto md:h-[400px]">
+        <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black print:bg-white">
+          <h3 className="text-base md:text-lg font-bold text-slate-200 mb-4 text-center print:text-black">Entregues para Auditoria</h3>
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={WEEKLY_FLOW_DATA} margin={{top: 10, right: 10, left: -20, bottom: 0}}>
+                <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
+                <XAxis dataKey="name" stroke={colors.text} tick={{fontSize: 12, fill: colors.text}} axisLine={{stroke: colors.text}} />
+                <YAxis stroke={colors.text} tick={{fontSize: 12, fill: colors.text}} axisLine={{stroke: colors.text}} />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="Auditoria" 
+                  stroke={colors.lineAud} 
+                  strokeWidth={3} 
+                  dot={{r: 4, fill: colors.lineAud}} 
+                  activeDot={{r: 6}} 
+                  isAnimationActive={!isPrinting} 
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-        <div className="bg-slate-800 p-3 md:p-4 rounded-lg border-l-4 border-green-500 print:bg-white print:border print:border-black">
-          <strong className="block text-green-400 text-base md:text-lg print:text-black">Enfermagem (300)</strong>
-          <span className="text-slate-400 text-xs md:text-sm print:text-black">Impacta rastreabilidade. Falta de checagem.</span>
-        </div>
-        <div className="bg-slate-800 p-3 md:p-4 rounded-lg border-l-4 border-orange-500 print:bg-white print:border print:border-black">
-          <strong className="block text-orange-400 text-base md:text-lg print:text-black">Médico (103)</strong>
-          <span className="text-slate-400 text-xs md:text-sm print:text-black">Sustentação documental. Evoluções e descrições.</span>
+        <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black print:bg-white">
+          <h3 className="text-base md:text-lg font-bold text-slate-200 mb-4 text-center print:text-black">Enviadas ao Faturamento</h3>
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={WEEKLY_FLOW_DATA} margin={{top: 10, right: 10, left: -20, bottom: 0}}>
+                <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
+                <XAxis dataKey="name" stroke={colors.text} tick={{fontSize: 12, fill: colors.text}} axisLine={{stroke: colors.text}} />
+                <YAxis stroke={colors.text} tick={{fontSize: 12, fill: colors.text}} axisLine={{stroke: colors.text}} />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="Faturamento" 
+                  stroke={colors.lineFat} 
+                  strokeWidth={3} 
+                  dot={{r: 4, fill: colors.lineFat}} 
+                  activeDot={{r: 6}} 
+                  isAnimationActive={!isPrinting} 
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
+
+/* --- SLIDE 5: Errors by Sector --- */
+export const SlideErrorDistribution: React.FC<SlideProps> = ({ isPrinting = false }) => {
+  const colors = getChartColors(isPrinting);
+  
+  return (
+    <>
+      <SectionTitle 
+        title="Origem dos Erros" 
+        subtitle="Distribuição dos apontamentos por setor responsável."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-center h-full">
+        <div className="md:col-span-2 bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[400px] print:border-black print:bg-white">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={ERROR_BY_SECTOR} layout="vertical" margin={{left: 0, right: 20}}>
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} horizontal={false} />
+              <XAxis type="number" stroke={colors.text} tick={{fill: colors.text}} axisLine={{stroke: colors.text}} />
+              <YAxis dataKey="name" type="category" stroke={colors.text} width={100} tick={{fontSize: 12, fontWeight: 600, fill: colors.text}} axisLine={{stroke: colors.text}} />
+              <Tooltip content={<CustomTooltip />} cursor={{fill: isPrinting ? '#f0f0f0' : 'rgba(255,255,255,0.05)'}} />
+              <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={40} isAnimationActive={!isPrinting}>
+                {ERROR_BY_SECTOR.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill as string} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="space-y-3 md:space-y-4">
+          <div className="bg-slate-800 p-3 md:p-4 rounded-lg border-l-4 border-blue-500 print:bg-white print:border print:border-black">
+            <strong className="block text-blue-400 text-base md:text-lg print:text-black">Faturamento (1093)</strong>
+            <span className="text-slate-400 text-xs md:text-sm print:text-black">Maior volume. Necessidade de protocolos claros de conferência.</span>
+          </div>
+          <div className="bg-slate-800 p-3 md:p-4 rounded-lg border-l-4 border-green-500 print:bg-white print:border print:border-black">
+            <strong className="block text-green-400 text-base md:text-lg print:text-black">Enfermagem (300)</strong>
+            <span className="text-slate-400 text-xs md:text-sm print:text-black">Impacta rastreabilidade. Falta de checagem.</span>
+          </div>
+          <div className="bg-slate-800 p-3 md:p-4 rounded-lg border-l-4 border-orange-500 print:bg-white print:border print:border-black">
+            <strong className="block text-orange-400 text-base md:text-lg print:text-black">Médico (103)</strong>
+            <span className="text-slate-400 text-xs md:text-sm print:text-black">Sustentação documental. Evoluções e descrições.</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 /* --- SLIDE 6: Item Ranking --- */
-export const SlideItemRanking: React.FC = () => (
+export const SlideItemRanking: React.FC<SlideProps> = () => (
   <>
     <SectionTitle 
       title="Ranking de Ocorrências" 
@@ -266,10 +314,10 @@ export const SlideItemRanking: React.FC = () => (
         <table className="w-full text-left border-collapse min-w-[500px] text-sm md:text-base">
           <thead className="bg-slate-800 text-slate-200 print:bg-gray-200 print:text-black">
             <tr>
-              <th className="p-2 md:p-3 font-bold border-b border-slate-700 w-12 md:w-16 text-center">#</th>
-              <th className="p-2 md:p-3 font-bold border-b border-slate-700">Item / Causa</th>
-              <th className="p-2 md:p-3 font-bold border-b border-slate-700 text-right">Qtd</th>
-              <th className="p-2 md:p-3 font-bold border-b border-slate-700">Impacto</th>
+              <th className="p-2 md:p-3 font-bold border-b border-slate-700 w-12 md:w-16 text-center print:border-black">#</th>
+              <th className="p-2 md:p-3 font-bold border-b border-slate-700 print:border-black">Item / Causa</th>
+              <th className="p-2 md:p-3 font-bold border-b border-slate-700 text-right print:border-black">Qtd</th>
+              <th className="p-2 md:p-3 font-bold border-b border-slate-700 print:border-black">Impacto</th>
             </tr>
           </thead>
           <tbody className="bg-slate-900/50 print:bg-white">
@@ -280,9 +328,9 @@ export const SlideItemRanking: React.FC = () => (
                 <td className="p-2 md:p-3 text-right font-bold text-slate-100 print:text-black">{item.value}</td>
                 <td className="p-2 md:p-3">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap
-                    ${item.tagType === 'danger' ? 'bg-red-900/30 text-red-400 border border-red-900/50 print:border-black print:text-red-700' : 
-                      item.tagType === 'warning' ? 'bg-amber-900/30 text-amber-400 border border-amber-900/50 print:border-black print:text-amber-700' : 
-                      'bg-blue-900/30 text-blue-400 border border-blue-900/50 print:border-black print:text-blue-700'}`}>
+                    ${item.tagType === 'danger' ? 'bg-red-900/30 text-red-400 border border-red-900/50 print:border-black print:text-red-700 print:bg-transparent' : 
+                      item.tagType === 'warning' ? 'bg-amber-900/30 text-amber-400 border border-amber-900/50 print:border-black print:text-amber-700 print:bg-transparent' : 
+                      'bg-blue-900/30 text-blue-400 border border-blue-900/50 print:border-black print:text-blue-700 print:bg-transparent'}`}>
                     {item.tag}
                   </span>
                 </td>
@@ -320,7 +368,7 @@ const ConvCard: React.FC<ConvCardProps> = ({ name, errors, pct, logoUrl, placeho
 
   return (
     <div className="bg-slate-800 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center gap-3 hover:border-blue-500 transition-colors group h-full print:border-black print:bg-white">
-      <div className="w-24 h-16 rounded-lg bg-slate-200 flex items-center justify-center p-2 group-hover:bg-white transition-colors overflow-hidden shadow-inner relative print:border print:border-black">
+      <div className="w-24 h-16 rounded-lg bg-slate-200 flex items-center justify-center p-2 group-hover:bg-white transition-colors overflow-hidden shadow-inner relative print:border print:border-black print:bg-white">
         {!imgError && logoUrl ? (
           <img 
             src={`logos/${logoUrl}`} 
@@ -329,7 +377,7 @@ const ConvCard: React.FC<ConvCardProps> = ({ name, errors, pct, logoUrl, placeho
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className={`absolute inset-0 flex items-center justify-center text-white font-black text-xl tracking-wider ${bgColor} shadow-inner print:bg-gray-200 print:text-black`}>
+          <div className={`absolute inset-0 flex items-center justify-center text-white font-black text-xl tracking-wider ${bgColor} shadow-inner print:bg-transparent print:text-black`}>
             {placeholder}
           </div>
         )}
@@ -347,7 +395,7 @@ const ConvCard: React.FC<ConvCardProps> = ({ name, errors, pct, logoUrl, placeho
   );
 };
 
-export const SlideInsurance: React.FC = () => (
+export const SlideInsurance: React.FC<SlideProps> = () => (
   <>
     <SectionTitle 
       title="Erros por Convênio" 
@@ -366,8 +414,8 @@ export const SlideInsurance: React.FC = () => (
         />
       ))}
     </div>
-    <div className="mt-6 md:mt-8 p-4 bg-slate-800/30 border border-slate-700 rounded-xl print:border-black">
-       <p className="text-sm md:text-base text-slate-300">
+    <div className="mt-6 md:mt-8 p-4 bg-slate-800/30 border border-slate-700 rounded-xl print:border-black print:bg-white">
+       <p className="text-sm md:text-base text-slate-300 print:text-black">
          <strong className="text-white print:text-black">Análise:</strong> A concentração na Unimed (Local + Intercâmbio) reflete o volume de atendimento, mas também a complexidade das regras de negócio.
        </p>
     </div>
@@ -375,7 +423,7 @@ export const SlideInsurance: React.FC = () => (
 );
 
 /* --- SLIDE 8: Professionals --- */
-export const SlideProfessionals: React.FC = () => (
+export const SlideProfessionals: React.FC<SlideProps> = () => (
   <>
     <SectionTitle 
       title="Produtividade & Ocorrências" 
@@ -386,11 +434,11 @@ export const SlideProfessionals: React.FC = () => (
         <table className="w-full text-left border-collapse text-sm md:text-base min-w-[600px]">
           <thead className="bg-slate-800 text-slate-200 print:bg-gray-200 print:text-black">
             <tr>
-              <th className="p-3 md:p-4 border-b border-slate-700 w-12 md:w-16 text-center">#</th>
-              <th className="p-3 md:p-4 border-b border-slate-700">Profissional</th>
-              <th className="p-3 md:p-4 border-b border-slate-700">Setor/Função</th>
-              <th className="p-3 md:p-4 border-b border-slate-700 text-right">Erros Reg.</th>
-              <th className="p-3 md:p-4 border-b border-slate-700">Contexto</th>
+              <th className="p-3 md:p-4 border-b border-slate-700 w-12 md:w-16 text-center print:border-black">#</th>
+              <th className="p-3 md:p-4 border-b border-slate-700 print:border-black">Profissional</th>
+              <th className="p-3 md:p-4 border-b border-slate-700 print:border-black">Setor/Função</th>
+              <th className="p-3 md:p-4 border-b border-slate-700 text-right print:border-black">Erros Reg.</th>
+              <th className="p-3 md:p-4 border-b border-slate-700 print:border-black">Contexto</th>
             </tr>
           </thead>
           <tbody className="bg-slate-900/50 print:bg-white">
@@ -402,7 +450,7 @@ export const SlideProfessionals: React.FC = () => (
                 <td className="p-3 md:p-4 text-right font-bold text-slate-100 print:text-black">{p.value}</td>
                 <td className="p-3 md:p-4">
                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    ${p.tagType === 'info' ? 'bg-blue-900/30 text-blue-400 print:text-blue-700 print:border print:border-black' : 'bg-amber-900/30 text-amber-400 print:text-amber-700 print:border print:border-black'}`}>
+                    ${p.tagType === 'info' ? 'bg-blue-900/30 text-blue-400 print:text-blue-700 print:border print:border-black print:bg-transparent' : 'bg-amber-900/30 text-amber-400 print:text-amber-700 print:border print:border-black print:bg-transparent'}`}>
                     {p.tag}
                   </span>
                 </td>
@@ -414,7 +462,7 @@ export const SlideProfessionals: React.FC = () => (
     </div>
     <div className="mt-4 flex items-start gap-2 text-xs md:text-sm text-slate-400 bg-slate-800 p-3 rounded-lg print:border print:border-black print:bg-white">
       <AlertTriangle size={16} className="mt-0.5 text-yellow-500 shrink-0" />
-      <p>
+      <p className="print:text-black">
         <strong>Interpretação:</strong> Alto volume nestes casos indica <span className="text-white print:text-black">alta produtividade de auditoria</span>. 
         Bruno e Kátia, por exemplo, são os que mais auditam.
       </p>
@@ -423,56 +471,71 @@ export const SlideProfessionals: React.FC = () => (
 );
 
 /* --- SLIDE 9: Error Categories --- */
-export const SlideErrorCategories: React.FC = () => (
-  <>
-    <SectionTitle 
-      title="Categorias Críticas" 
-      subtitle="Ranking por tipo macro de erro."
-    />
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
-      <div className="h-[300px] md:h-[350px] bg-slate-800/50 rounded-2xl p-4 border border-slate-700 print:border-black">
-         <ResponsiveContainer width="100%" height="100%">
-           <BarChart data={ERROR_CATEGORIES} margin={{top:20, bottom: 20}}>
-             <CartesianGrid strokeDasharray="3 3" stroke="#475569" vertical={false} />
-             <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 12, fill: '#000'}} axisLine={false} tickLine={false} />
-             <YAxis stroke="#64748b" axisLine={false} tickLine={false} tick={{fill: '#000'}} />
-             <Tooltip content={<CustomTooltip />} />
-             <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50} isAnimationActive={false}>
-               {ERROR_CATEGORIES.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill as string} />
-               ))}
-             </Bar>
-           </BarChart>
-         </ResponsiveContainer>
+export const SlideErrorCategories: React.FC<SlideProps> = ({ isPrinting = false }) => {
+  const colors = getChartColors(isPrinting);
+
+  return (
+    <>
+      <SectionTitle 
+        title="Categorias Críticas" 
+        subtitle="Ranking por tipo macro de erro."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
+        <div className="h-[300px] md:h-[350px] bg-slate-800/50 rounded-2xl p-4 border border-slate-700 print:border-black print:bg-white">
+           <ResponsiveContainer width="100%" height="100%">
+             <BarChart data={ERROR_CATEGORIES} margin={{top:20, bottom: 20}}>
+               <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
+               <XAxis 
+                dataKey="name" 
+                stroke={colors.text} 
+                tick={{fontSize: 12, fill: colors.text}} 
+                axisLine={{stroke: colors.text}} 
+                tickLine={false} 
+              />
+               <YAxis 
+                stroke={colors.text} 
+                axisLine={{stroke: colors.text}} 
+                tickLine={false} 
+                tick={{fill: colors.text}} 
+              />
+               <Tooltip content={<CustomTooltip />} />
+               <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50} isAnimationActive={!isPrinting}>
+                 {ERROR_CATEGORIES.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill as string} />
+                 ))}
+               </Bar>
+             </BarChart>
+           </ResponsiveContainer>
+        </div>
+        <div>
+          <ul className="space-y-4 md:space-y-6">
+            <li className="relative pl-4 md:pl-6 border-l-2 border-blue-500">
+              <h4 className="font-bold text-lg md:text-xl text-slate-100 print:text-black">Erro de Enfermagem</h4>
+              <p className="text-sm md:text-base text-slate-400 mt-1 print:text-black">
+                Falta de relatórios e evoluções não anexadas. Itens assistenciais realizados mas não registrados (checagem).
+              </p>
+            </li>
+            <li className="relative pl-4 md:pl-6 border-l-2 border-orange-500">
+              <h4 className="font-bold text-lg md:text-xl text-slate-100 print:text-black">Erro Médico</h4>
+              <p className="text-sm md:text-base text-slate-400 mt-1 print:text-black">
+                Falta de evolução diária. Compromete a validação técnica da cobrança de diárias e procedimentos.
+              </p>
+            </li>
+            <li className="relative pl-4 md:pl-6 border-l-2 border-green-500">
+              <h4 className="font-bold text-lg md:text-xl text-slate-100 print:text-black">Erro de Faturamento</h4>
+              <p className="text-sm md:text-base text-slate-400 mt-1 print:text-black">
+                Materiais não lançados no sistema. Taxas administrativas esquecidas.
+              </p>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div>
-        <ul className="space-y-4 md:space-y-6">
-          <li className="relative pl-4 md:pl-6 border-l-2 border-blue-500">
-            <h4 className="font-bold text-lg md:text-xl text-slate-100 print:text-black">Erro de Enfermagem</h4>
-            <p className="text-sm md:text-base text-slate-400 mt-1 print:text-black">
-              Falta de relatórios e evoluções não anexadas. Itens assistenciais realizados mas não registrados (checagem).
-            </p>
-          </li>
-          <li className="relative pl-4 md:pl-6 border-l-2 border-orange-500">
-            <h4 className="font-bold text-lg md:text-xl text-slate-100 print:text-black">Erro Médico</h4>
-            <p className="text-sm md:text-base text-slate-400 mt-1 print:text-black">
-              Falta de evolução diária. Compromete a validação técnica da cobrança de diárias e procedimentos.
-            </p>
-          </li>
-          <li className="relative pl-4 md:pl-6 border-l-2 border-green-500">
-            <h4 className="font-bold text-lg md:text-xl text-slate-100 print:text-black">Erro de Faturamento</h4>
-            <p className="text-sm md:text-base text-slate-400 mt-1 print:text-black">
-              Materiais não lançados no sistema. Taxas administrativas esquecidas.
-            </p>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
 /* --- SLIDE 10: Strategy --- */
-export const SlideStrategy: React.FC = () => (
+export const SlideStrategy: React.FC<SlideProps> = () => (
   <div className="h-full flex flex-col justify-center">
     <SectionTitle 
       title="Papel Estratégico" 
@@ -497,7 +560,7 @@ export const SlideStrategy: React.FC = () => (
         </ul>
       </div>
 
-      <div className="bg-gradient-to-br from-blue-900/40 to-slate-900 p-6 md:p-8 rounded-3xl border border-blue-500/30 shadow-xl relative overflow-hidden print:border-black print:bg-none print:shadow-none">
+      <div className="bg-gradient-to-br from-blue-900/40 to-slate-900 p-6 md:p-8 rounded-3xl border border-blue-500/30 shadow-xl relative overflow-hidden print:border-black print:bg-none print:shadow-none print:bg-white">
         <h3 className="text-xl md:text-2xl font-bold text-blue-400 mb-4 print:text-black">Visão Futura (Híbrido)</h3>
         <ul className="space-y-3 md:space-y-4 text-slate-200 text-sm md:text-base">
           <li className="flex gap-3">
@@ -519,7 +582,7 @@ export const SlideStrategy: React.FC = () => (
 );
 
 /* --- SLIDE 11: Next Steps --- */
-export const SlideNextSteps: React.FC = () => (
+export const SlideNextSteps: React.FC<SlideProps> = () => (
   <div className="h-full flex flex-col justify-center">
     <SectionTitle 
       title="Próximos Passos" 
@@ -560,7 +623,7 @@ export const SlideNextSteps: React.FC = () => (
 );
 
 /* --- SLIDE 12: Closing --- */
-export const SlideClosing: React.FC = () => (
+export const SlideClosing: React.FC<SlideProps> = () => (
   <div className="flex flex-col items-center justify-center h-full text-center space-y-6 md:space-y-8">
     <div className="w-20 h-20 md:w-24 md:h-24 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/50 mb-2 md:mb-4 animate-bounce print:border print:border-black print:bg-white print:text-black print:shadow-none">
       <CheckCircle size={40} className="md:w-12 md:h-12 text-white print:text-black" />

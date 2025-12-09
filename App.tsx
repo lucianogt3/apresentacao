@@ -47,32 +47,37 @@ function App() {
   const handlePrintClick = () => {
     if (isPreparing || isPrinting) return;
     
-    // 1. Ativa modo de impressão (renderiza todos slides, ajusta cores para preto/branco)
+    // 1. Activate print mode (renders all slides, adjusts colors)
     setIsPrinting(true);
-    // 2. Mostra o loading na tela
+    // 2. Show loading screen
     setIsPreparing(true);
   };
 
   useEffect(() => {
     if (isPrinting && isPreparing) {
-      // Aguarda o React redesenhar os gráficos sem animação e com cores de impressão
+      // Force a resize event to ensure Recharts redraws correctly in the new layout width
+      window.dispatchEvent(new Event('resize'));
+
+      // Wait for React to re-render charts without animation and with print colors
       const renderTimer = setTimeout(() => {
         
-        // 3. REMOVE o loading da tela ANTES de chamar a impressora
+        // 3. Remove loading screen BEFORE calling print
         setIsPreparing(false);
         
-        // 4. Pequeno delay para garantir que o DOM atualizou (removeu o loader)
+        // 4. Small delay to ensure DOM update (loader removal)
         setTimeout(() => {
+          // Force another resize just to be safe
+          window.dispatchEvent(new Event('resize'));
+          
           window.print();
           
-          // 5. Após fechar a janela de impressão (ou imediatamente após enviar o comando),
-          // aguarda um pouco e volta ao modo normal
+          // 5. After print dialog closes, wait a bit then return to normal
           setTimeout(() => {
             setIsPrinting(false);
           }, 500);
         }, 100);
         
-      }, 1500); // 1.5s para garantir que todos os gráficos renderizaram
+      }, 1500); // 1.5s to ensure all charts are rendered
       
       return () => clearTimeout(renderTimer);
     }
