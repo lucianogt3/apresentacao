@@ -26,92 +26,89 @@
       }
     </script>
     <style>
-      /* Print Styles */
+      /* Print Styles - "Nuclear Option" to ensure white background */
       @media print {
-        @page { size: landscape; margin: 0.5cm; }
+        @page { size: landscape; margin: 1cm; }
         
-        body { 
-          background: white !important; 
-          color: black !important; 
+        /* Reset global colors */
+        html, body { 
+          background-color: #ffffff !important; 
+          background: #ffffff !important;
+          color: #000000 !important; 
           -webkit-print-color-adjust: exact; 
           print-color-adjust: exact;
-          overflow: visible !important;
-          height: auto !important;
         }
         
         #root {
-          overflow: visible !important;
-          height: auto !important;
+          background-color: #ffffff !important;
+          color: #000000 !important;
         }
 
+        /* Hide interactive elements */
         .no-print { display: none !important; }
         
-        /* Force visibility for slides during print */
+        /* Force visibility for slides */
         .print-force-visible { 
           display: block !important; 
-          opacity: 1 !important; 
-          visibility: visible !important; 
-          height: auto !important;
-          overflow: visible !important;
+          page-break-after: always;
+          margin-bottom: 20px;
         }
 
-        /* Slide Container overrides for print */
-        .slide-container { 
-          position: relative !important; 
-          height: auto !important; 
-          min-height: auto !important;
-          page-break-after: always; 
-          page-break-inside: avoid;
-          border: 1px solid #ddd !important;
+        /* Reset Containers - Kill the dark mode */
+        div, section, article, main, header, footer, aside {
+          background-color: transparent !important;
+          background-image: none !important;
           box-shadow: none !important;
-          background: white !important;
-          color: black !important;
-          margin-bottom: 2rem;
-          transform: none !important;
-          animation: none !important;
-          padding: 2rem !important;
+          color: #000000 !important;
+          text-shadow: none !important;
+        }
+
+        /* Specifically target the slide wrapper to add a simple border instead of shadow/bg */
+        .slide-container { 
+          border: 2px solid #000 !important;
+          border-radius: 0 !important;
+          background: #ffffff !important;
+          padding: 20px !important;
+          min-height: auto !important;
+          height: auto !important;
         }
         
-        /* Chart specific print overrides */
+        /* Chart container override */
         .recharts-responsive-container { 
           height: 350px !important; 
           width: 100% !important; 
-          /* Ensure charts are visible */
-          visibility: visible !important;
+          page-break-inside: avoid;
         }
         
-        /* Text Color Overrides */
-        h1, h2, h3, h4, p, span, div, strong, li { 
-          color: black !important; 
-          text-shadow: none !important; 
+        /* Typography overrides */
+        h1, h2, h3, h4, h5, h6 { 
+          color: #000000 !important; 
+          font-weight: 800 !important;
         }
         
-        /* Remove backgrounds/borders for print clarity */
-        .bg-slate-900, .bg-slate-950, .bg-slate-800, .bg-slate-800\/50, .bg-slate-800\/30 { 
-          background: transparent !important; 
-          border-color: #eee !important;
+        p, span, strong, li, td, th, div { 
+          color: #000000 !important; 
         }
         
-        .text-slate-200, .text-slate-400, .text-slate-300, .text-slate-500, .text-slate-100 { 
-          color: #333 !important; 
+        /* Helper to make specific text colors readable on white */
+        .text-slate-400, .text-slate-500, .text-slate-300 {
+          color: #444444 !important;
         }
         
-        .bg-gradient-to-br, .bg-gradient-to-r { 
-          background: none !important; 
-        }
-        
-        .border-slate-700, .border-slate-800 { 
-          border-color: #ccc !important; 
-        }
+        .text-blue-500, .text-blue-400 { color: #0000cc !important; }
+        .text-emerald-400 { color: #006600 !important; }
+        .text-red-400 { color: #cc0000 !important; }
+        .text-amber-400, .text-amber-500 { color: #b37400 !important; }
 
-        /* Specific fix for white text elements */
-        .text-white { color: #000 !important; }
-        .text-blue-400, .text-blue-500 { color: #2563eb !important; }
-        .text-emerald-400 { color: #059669 !important; }
-        .text-red-400 { color: #dc2626 !important; }
+        /* Tables */
+        table { border-collapse: collapse !important; width: 100% !important; }
+        th, td { border: 1px solid #000 !important; }
+        thead { border-bottom: 2px solid #000 !important; }
         
-        /* Hide scrollbars */
-        ::-webkit-scrollbar { display: none; }
+        /* Remove gradients */
+        [class*="bg-gradient"] {
+          background: transparent !important;
+        }
       }
 
       /* Custom Scrollbar for web */
