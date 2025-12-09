@@ -54,9 +54,9 @@
           break-after: page;
           page-break-after: always; 
           width: 100% !important;
-          height: 100vh !important;
+          min-height: 100vh !important;
           position: relative;
-          padding: 2cm 1cm; 
+          padding: 1cm !important; 
           box-sizing: border-box;
           background: white !important;
         }
@@ -65,6 +65,11 @@
         .recharts-wrapper {
           width: 100% !important;
           display: block !important;
+          overflow: visible !important;
+        }
+        
+        .recharts-surface {
+          overflow: visible !important;
         }
         
         /* Ensure SVG texts are black */

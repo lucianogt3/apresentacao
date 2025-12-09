@@ -13,23 +13,37 @@ import { CustomTooltip } from './CustomTooltip';
 
 /* 
   PROPS INTERFACE
-  All slides accept isPrinting to switch chart colors dynamically
 */
 interface SlideProps {
   isPrinting?: boolean;
 }
 
-// Helper for Chart Colors - SIMPLIFIED FOR PRINT
+// Helper for Chart Colors - High contrast for print
 const getChartColors = (isPrinting: boolean = false) => ({
   text: isPrinting ? '#000000' : '#f8fafc',
   grid: isPrinting ? '#e5e5e5' : '#334155',
-  // High contrast for print
-  lineAud: isPrinting ? '#000000' : '#eab308', // Black for print
-  lineFat: isPrinting ? '#666666' : '#3b82f6', // Grey for print
-  // Bar fills
+  lineAud: isPrinting ? '#000000' : '#eab308', 
+  lineFat: isPrinting ? '#666666' : '#3b82f6', 
   barAud: isPrinting ? '#000000' : '#eab308',
   barFat: isPrinting ? '#94a3b8' : '#3b82f6',
 });
+
+// Helper component to switch between Responsive (Screen) and Fixed (Print)
+const ChartContainer: React.FC<{
+  isPrinting: boolean;
+  children: React.ReactElement; // The Chart Component (BarChart, LineChart)
+  height?: number;
+}> = ({ isPrinting, children, height = 400 }) => {
+  if (isPrinting) {
+    // Clone the chart element to inject fixed width/height props
+    return React.cloneElement(children as React.ReactElement<any>, { width: 950, height: height });
+  }
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      {children}
+    </ResponsiveContainer>
+  );
+};
 
 /* --- SLIDE 0: Cover --- */
 export const SlideCover: React.FC<SlideProps> = () => (
@@ -169,9 +183,9 @@ export const SlideWeeklyFlow: React.FC<SlideProps> = ({ isPrinting = false }) =>
         title="Fluxo de Contas por Dia" 
         subtitle="Volume de contas entregues à auditoria vs. enviadas ao faturamento."
       />
-      {/* Fixed height for print to ensure rendering */}
-      <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[450px] print:border-black print:h-[400px] print:bg-transparent">
-        <ResponsiveContainer width="100%" height="100%">
+      {/* Container is 100% width on screen, but allows internal Chart to determine size on print */}
+      <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[450px] print:border-black print:h-auto print:min-h-[400px] print:bg-transparent print:overflow-visible">
+        <ChartContainer isPrinting={isPrinting} height={400}>
           <BarChart data={WEEKLY_FLOW_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
             <XAxis 
@@ -204,7 +218,7 @@ export const SlideWeeklyFlow: React.FC<SlideProps> = ({ isPrinting = false }) =>
               isAnimationActive={!isPrinting} 
             />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
       <div className="mt-4 text-center text-slate-400 text-xs md:text-sm print:text-black">
         Picos em Quarta e Sexta exigem escala reforçada para evitar gargalos.
@@ -223,11 +237,13 @@ export const SlideAuditVsBilling: React.FC<SlideProps> = ({ isPrinting = false }
         title="Equilíbrio: Entrada vs Saída" 
         subtitle="Análise comparativa das curvas de trabalho."
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 h-auto md:h-[400px]">
-        <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black print:bg-transparent print:h-[300px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 h-auto md:h-[400px] print:block">
+        
+        {/* Chart 1 */}
+        <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black print:bg-transparent print:h-auto print:min-h-[300px] print:mb-4">
           <h3 className="text-base md:text-lg font-bold text-slate-200 mb-4 text-center print:text-black">Entregues para Auditoria</h3>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="flex-1 print:flex-none">
+            <ChartContainer isPrinting={isPrinting} height={300}>
               <LineChart data={WEEKLY_FLOW_DATA} margin={{top: 10, right: 10, left: -20, bottom: 0}}>
                 <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
                 <XAxis dataKey="name" stroke={colors.text} tick={{fontSize: 12, fill: colors.text}} axisLine={{stroke: colors.text}} />
@@ -243,13 +259,15 @@ export const SlideAuditVsBilling: React.FC<SlideProps> = ({ isPrinting = false }
                   isAnimationActive={!isPrinting} 
                 />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
-        <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black print:bg-transparent print:h-[300px]">
+
+        {/* Chart 2 */}
+        <div className="bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 flex flex-col h-[300px] md:h-auto print:border-black print:bg-transparent print:h-auto print:min-h-[300px]">
           <h3 className="text-base md:text-lg font-bold text-slate-200 mb-4 text-center print:text-black">Enviadas ao Faturamento</h3>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="flex-1 print:flex-none">
+            <ChartContainer isPrinting={isPrinting} height={300}>
               <LineChart data={WEEKLY_FLOW_DATA} margin={{top: 10, right: 10, left: -20, bottom: 0}}>
                 <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
                 <XAxis dataKey="name" stroke={colors.text} tick={{fontSize: 12, fill: colors.text}} axisLine={{stroke: colors.text}} />
@@ -265,7 +283,7 @@ export const SlideAuditVsBilling: React.FC<SlideProps> = ({ isPrinting = false }
                   isAnimationActive={!isPrinting} 
                 />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
       </div>
@@ -283,9 +301,9 @@ export const SlideErrorDistribution: React.FC<SlideProps> = ({ isPrinting = fals
         title="Origem dos Erros" 
         subtitle="Distribuição dos apontamentos por setor responsável."
       />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-center h-full">
-        <div className="md:col-span-2 bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[400px] print:border-black print:bg-transparent">
-          <ResponsiveContainer width="100%" height="100%">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-center h-full print:block">
+        <div className="md:col-span-2 bg-slate-800/50 p-4 md:p-6 rounded-2xl border border-slate-700 h-[300px] md:h-[400px] print:border-black print:bg-transparent print:h-auto print:min-h-[350px] print:mb-6">
+          <ChartContainer isPrinting={isPrinting} height={350}>
             <BarChart data={ERROR_BY_SECTOR} layout="vertical" margin={{left: 0, right: 20}}>
               <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} horizontal={false} />
               <XAxis type="number" stroke={colors.text} tick={{fill: colors.text}} axisLine={{stroke: colors.text}} />
@@ -297,9 +315,9 @@ export const SlideErrorDistribution: React.FC<SlideProps> = ({ isPrinting = fals
                 ))}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
-        <div className="space-y-3 md:space-y-4">
+        <div className="space-y-3 md:space-y-4 print:space-y-2">
           <div className="bg-slate-800 p-3 md:p-4 rounded-lg border-l-4 border-blue-500 print:bg-transparent print:border print:border-black">
             <strong className="block text-blue-400 text-base md:text-lg print:text-black">Faturamento (1093)</strong>
             <span className="text-slate-400 text-xs md:text-sm print:text-black">Maior volume. Necessidade de protocolos claros de conferência.</span>
@@ -496,9 +514,9 @@ export const SlideErrorCategories: React.FC<SlideProps> = ({ isPrinting = false 
         title="Categorias Críticas" 
         subtitle="Ranking por tipo macro de erro."
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
-        <div className="h-[300px] md:h-[350px] bg-slate-800/50 rounded-2xl p-4 border border-slate-700 print:border-black print:bg-transparent">
-           <ResponsiveContainer width="100%" height="100%">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center print:block">
+        <div className="h-[300px] md:h-[350px] bg-slate-800/50 rounded-2xl p-4 border border-slate-700 print:border-black print:bg-transparent print:h-auto print:min-h-[350px] print:mb-6">
+           <ChartContainer isPrinting={isPrinting} height={350}>
              <BarChart data={ERROR_CATEGORIES} margin={{top:20, bottom: 20}}>
                <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
                <XAxis 
@@ -521,7 +539,7 @@ export const SlideErrorCategories: React.FC<SlideProps> = ({ isPrinting = false 
                  ))}
                </Bar>
              </BarChart>
-           </ResponsiveContainer>
+           </ChartContainer>
         </div>
         <div>
           <ul className="space-y-4 md:space-y-6">
