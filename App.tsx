@@ -59,6 +59,7 @@ function App() {
       window.dispatchEvent(new Event('resize'));
 
       // Wait for React to re-render charts without animation and with print colors
+      // Increased delay to ensure charts are fully drawn in DOM
       const renderTimer = setTimeout(() => {
         
         // 3. Remove loading screen BEFORE calling print
@@ -75,9 +76,9 @@ function App() {
           setTimeout(() => {
             setIsPrinting(false);
           }, 500);
-        }, 100);
+        }, 500);
         
-      }, 1500); // 1.5s to ensure all charts are rendered
+      }, 2000); // 2s to ensure all charts are rendered
       
       return () => clearTimeout(renderTimer);
     }
